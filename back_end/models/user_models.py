@@ -12,8 +12,7 @@ def validate_password_strength(password: str) -> str:
 
 
 def validate_email_domain_has_mx(email: str) -> str:
-    normalized_email = email.strip().lower()
-    domain = normalized_email.rsplit("@", 1)[-1]
+    domain = email.rsplit("@", 1)[-1]
     resolver = dns.resolver.Resolver()
     resolver.timeout = 2
     resolver.lifetime = 2
@@ -32,7 +31,7 @@ def validate_email_domain_has_mx(email: str) -> str:
     if not answers:
         raise ValueError("Email domain does not have valid mail DNS records")
 
-    return normalized_email
+    return email
 
 
 class UserSignup(BaseModel):

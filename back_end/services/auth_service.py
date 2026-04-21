@@ -157,10 +157,14 @@ class AuthService:
         payload: PasswordChangeRequest,
         current_user: dict,
     ) -> dict[str, str]:
-        if not verify_password(payload.current_password, current_user["password"]):
+        current_password_matches = verify_password(
+            payload.current_password,
+            current_user["password"],
+        )
+        if not current_password_matches:
             raise HTTPException(status_code=401, detail="Current password is incorrect")
 
-        if verify_password(payload.new_password, current_user["password"]):
+        if payload.new_password == payload.current_password:
             raise HTTPException(
                 status_code=400,
                 detail="New password must be different from the current password",
