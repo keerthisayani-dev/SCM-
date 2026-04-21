@@ -6,3 +6,7 @@ class ShipmentUser(BaseModel):
     name: str
     email: str
     phone: str
+
+
+if __name__ == "__main__":
+    print("back_end.shipment.user loaded successfully")

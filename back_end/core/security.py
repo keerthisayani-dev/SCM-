@@ -17,10 +17,14 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(password: str, stored_password: str) -> bool:
-    return bcrypt.checkpw(
-        password.encode("utf-8"),
-        stored_password.encode("utf-8"),
-    )
+    try:
+        return bcrypt.checkpw(
+            password.encode("utf-8"),
+            stored_password.encode("utf-8"),
+        )
+    except ValueError:
+        # Treat malformed stored hashes as authentication failure instead of 500.
+        return False
 
 
 def create_access_token(email: str) -> str:
@@ -48,3 +52,7 @@ def parse_iso_datetime(value: str | None) -> datetime | None:
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=UTC)
     return parsed.astimezone(UTC)
+
+
+if __name__ == "__main__":
+    print("back_end.core.security loaded successfully")

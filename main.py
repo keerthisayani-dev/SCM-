@@ -71,5 +71,6 @@ async def home():
 
 
 if __name__ == "__main__":
+    print("main.py loaded successfully")
     port = int(os.getenv("PORT", "8000"))
     uvicorn.run("main:app", host="127.0.0.1", port=port, reload=False)

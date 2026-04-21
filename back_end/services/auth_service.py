@@ -114,6 +114,7 @@ class AuthService:
             )
 
         if not verify_password(user.password, stored_user["password"]):
+            # Avoid leaking whether the stored password hash is malformed.
             failed_attempts = int(stored_user.get("failed_login_attempts", 0)) + 1
             next_locked_until = None
             if failed_attempts >= MAX_LOGIN_ATTEMPTS:
@@ -182,3 +183,7 @@ class AuthService:
         if isinstance(exc, jwt.InvalidTokenError):
             raise HTTPException(status_code=401, detail="Invalid token") from exc
         raise exc
+
+
+if __name__ == "__main__":
+    print("back_end.services.auth_service loaded successfully")

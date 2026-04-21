@@ -1,5 +1,6 @@
 import re
 
+import dns.exception
 import dns.resolver
 from pydantic import BaseModel, ValidationInfo, field_validator
 
@@ -11,7 +12,8 @@ def validate_password_strength(password: str) -> str:
 
 
 def validate_email_domain_has_mx(email: str) -> str:
-    domain = email.rsplit("@", 1)[-1].strip().lower()
+    normalized_email = email.strip().lower()
+    domain = normalized_email.rsplit("@", 1)[-1]
     resolver = dns.resolver.Resolver()
     resolver.timeout = 2
     resolver.lifetime = 2
@@ -23,13 +25,14 @@ def validate_email_domain_has_mx(email: str) -> str:
         dns.resolver.NXDOMAIN,
         dns.resolver.NoNameservers,
         dns.resolver.LifetimeTimeout,
+        dns.exception.DNSException,
     ) as exc:
         raise ValueError("Email domain does not have valid mail DNS records") from exc
 
     if not answers:
         raise ValueError("Email domain does not have valid mail DNS records")
 
-    return email
+    return normalized_email
 
 
 class UserSignup(BaseModel):
@@ -42,6 +45,7 @@ class UserSignup(BaseModel):
     @field_validator("email")
     @classmethod
     def email_must_be_valid(cls, value: str) -> str:
+        value = value.strip().lower()
         pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
         if not re.match(pattern, value):
             raise ValueError("Invalid email address")
@@ -70,6 +74,15 @@ class UserSignup(BaseModel):
 class UserLogin(BaseModel):
     email: str
     password: str
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+        if not re.match(pattern, normalized):
+            raise ValueError("Invalid email address")
+        return normalized
 
 
 class UserData(BaseModel):
@@ -110,3 +123,7 @@ class PasswordChangeRequest(BaseModel):
         if "new_password" in info.data and value != info.data["new_password"]:
             raise ValueError("Passwords do not match")
         return value
+
+
+if __name__ == "__main__":
+    print("back_end.models.user_models loaded successfully")
