@@ -1,15 +1,7 @@
 from collections.abc import Callable
-from pathlib import Path
-import sys
 from typing import Any
 
 from fastapi import APIRouter, Depends, Header
-
-if __package__ is None or __package__ == "":
-    project_root = Path(__file__).resolve().parents[2]
-    project_root_str = str(project_root)
-    if project_root_str not in sys.path:
-        sys.path.insert(0, project_root_str)
 
 from back_end.models.user_models import (
     PasswordChangeRequest,
@@ -97,7 +89,3 @@ def build_auth_router(
         return await auth_service.change_password(payload, current_user)
 
     return router
-
-
-if __name__ == "__main__":
-    print("back_end.routes.user loaded successfully")

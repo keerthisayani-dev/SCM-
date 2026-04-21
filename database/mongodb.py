@@ -16,7 +16,3 @@ def create_client() -> AsyncIOMotorClient:
 def get_database(client: AsyncIOMotorClient) -> AsyncIOMotorDatabase:
     db_name = os.getenv("MONGODB_DB_NAME", "scm_project")
     return client[db_name]
-
-
-if __name__ == "__main__":
-    print("database.mongodb loaded successfully")

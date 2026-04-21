@@ -183,7 +183,3 @@ class AuthService:
         if isinstance(exc, jwt.InvalidTokenError):
             raise HTTPException(status_code=401, detail="Invalid token") from exc
         raise exc
-
-
-if __name__ == "__main__":
-    print("back_end.services.auth_service loaded successfully")

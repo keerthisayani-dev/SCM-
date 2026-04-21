@@ -64,7 +64,3 @@ class UserRepository:
             {"email": email},
             {"_id": 0, "password": 0},
         )
-
-
-if __name__ == "__main__":
-    print("database.user_repository loaded successfully")

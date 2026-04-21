@@ -123,7 +123,3 @@ class PasswordChangeRequest(BaseModel):
         if "new_password" in info.data and value != info.data["new_password"]:
             raise ValueError("Passwords do not match")
         return value
-
-
-if __name__ == "__main__":
-    print("back_end.models.user_models loaded successfully")

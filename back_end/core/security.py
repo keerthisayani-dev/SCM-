@@ -52,7 +52,3 @@ def parse_iso_datetime(value: str | None) -> datetime | None:
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=UTC)
     return parsed.astimezone(UTC)
-
-
-if __name__ == "__main__":
-    print("back_end.core.security loaded successfully")
