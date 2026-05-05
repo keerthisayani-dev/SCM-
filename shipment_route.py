@@ -1,1 +1,0 @@
-"""Shipment route placeholder."""
