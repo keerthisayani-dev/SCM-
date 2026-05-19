@@ -1,7 +1,10 @@
 fastapi
-uvicorn
+uvicorn[standard]
 motor
 bcrypt
-python-dotenv
 python-jose[cryptography]
 pydantic
+pydantic-settings
+pymongo
+email-validator
+pytest
