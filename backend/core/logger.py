@@ -1,47 +1,17 @@
-import json
 import logging
-from logging.config import dictConfig
+from pathlib import Path
 
-from backend.middleware.request_context import get_request_context
-
-
-class JsonFormatter(logging.Formatter):
-    def format(self, record: logging.LogRecord) -> str:
-        context = get_request_context()
-        payload = {
-            "level": record.levelname,
-            "logger": record.name,
-            "message": record.getMessage(),
-            "request_id": getattr(record, "request_id", context["request_id"]),
-            "path": getattr(record, "path", context["path"]),
-            "method": getattr(record, "method", context["method"]),
-            "status_code": getattr(record, "status_code", None),
-            "duration_ms": getattr(record, "duration_ms", None),
-        }
-        if record.exc_info:
-            payload["exception"] = self.formatException(record.exc_info)
-        return json.dumps(payload, default=str)
+from backend.config import get_settings
 
 
 def configure_logging() -> None:
-    dictConfig(
-        {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "json": {
-                    "()": "backend.core.logger.JsonFormatter",
-                }
-            },
-            "handlers": {
-                "default": {
-                    "class": "logging.StreamHandler",
-                    "formatter": "json",
-                }
-            },
-            "root": {
-                "level": "INFO",
-                "handlers": ["default"],
-            },
-        }
+    settings = get_settings()
+    log_file_path = Path(settings.log_file)
+    log_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logging.basicConfig(
+        filename=str(log_file_path),
+        level=getattr(logging, settings.log_level.upper(), logging.INFO),
+        format=settings.log_format,
+        force=True,
     )
