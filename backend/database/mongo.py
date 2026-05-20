@@ -35,67 +35,96 @@ async def check_database_connection() -> float:
     try:
         await database.command("dbStats")
         latency_ms = round((time.perf_counter() - started) * 1000, 2)
-        logger.info("database connection check succeeded", extra={"duration_ms": latency_ms})
+        logger.info("database connection check succeeded")
         return latency_ms
-    except PyMongoError as exc:
+    except PyMongoError:
         logger.exception("database connection check failed")
-        raise RuntimeError(f"Failed to connect to MongoDB: {exc}") from exc
+        raise RuntimeError("Failed to connect to MongoDB") from None
 
 
 async def prepare_database() -> None:
     try:
         logger.info("preparing database indexes")
         await check_database_connection()
-        await users_collection.create_index(
-            [("uid", ASCENDING)],
-            name="uid_unique_if_string",
-            unique=True,
-            partialFilterExpression={"uid": {"$type": "string"}},
-        )
-        await users_collection.create_index(
-            [("email", ASCENDING)],
-            name="email_unique_if_string",
-            unique=True,
-            partialFilterExpression={"email": {"$type": "string"}},
-        )
-        await users_collection.create_index(
-            [("username", ASCENDING)],
-            name="username_unique_if_string",
-            unique=True,
-            partialFilterExpression={"username": {"$type": "string"}},
-        )
-        await users_collection.create_index(
-            [("phone_number", ASCENDING)],
-            name="phone_number_unique_if_string",
-            unique=True,
-            partialFilterExpression={"phone_number": {"$type": "string"}},
-        )
-        await devices_collection.create_index(
-            [("device_id", ASCENDING)],
-            name="device_id_unique_if_string",
-            unique=True,
-            partialFilterExpression={"device_id": {"$type": "string"}},
-        )
-        await shipments_collection.create_index(
-            [("tracking_id", ASCENDING)],
-            name="tracking_id_unique_if_string",
-            unique=True,
-            partialFilterExpression={"tracking_id": {"$type": "string"}},
-        )
-        await shipments_collection.create_index(
-            [("owner_id", ASCENDING)],
-            name="shipment_owner_lookup",
-            partialFilterExpression={"owner_id": {"$type": "string"}},
-        )
-        await users_collection.create_index(
-            [("role", ASCENDING)],
-            name="user_role_lookup",
-            partialFilterExpression={"role": {"$type": "string"}},
-        )
+        index_definitions = [
+            (
+                users_collection,
+                [("uid", ASCENDING)],
+                {
+                    "name": "uid_unique_if_string",
+                    "unique": True,
+                    "partialFilterExpression": {"uid": {"$type": "string"}},
+                },
+            ),
+            (
+                users_collection,
+                [("email", ASCENDING)],
+                {
+                    "name": "email_unique_if_string",
+                    "unique": True,
+                    "partialFilterExpression": {"email": {"$type": "string"}},
+                },
+            ),
+            (
+                users_collection,
+                [("username", ASCENDING)],
+                {
+                    "name": "username_unique_if_string",
+                    "unique": True,
+                    "partialFilterExpression": {"username": {"$type": "string"}},
+                },
+            ),
+            (
+                users_collection,
+                [("phone_number", ASCENDING)],
+                {
+                    "name": "phone_number_unique_if_string",
+                    "unique": True,
+                    "partialFilterExpression": {"phone_number": {"$type": "string"}},
+                },
+            ),
+            (
+                devices_collection,
+                [("device_id", ASCENDING)],
+                {
+                    "name": "device_id_unique_if_string",
+                    "unique": True,
+                    "partialFilterExpression": {"device_id": {"$type": "string"}},
+                },
+            ),
+            (
+                shipments_collection,
+                [("tracking_id", ASCENDING)],
+                {
+                    "name": "tracking_id_unique_if_string",
+                    "unique": True,
+                    "partialFilterExpression": {"tracking_id": {"$type": "string"}},
+                },
+            ),
+            (
+                shipments_collection,
+                [("owner_id", ASCENDING)],
+                {
+                    "name": "shipment_owner_lookup",
+                    "partialFilterExpression": {"owner_id": {"$type": "string"}},
+                },
+            ),
+            (
+                users_collection,
+                [("role", ASCENDING)],
+                {
+                    "name": "user_role_lookup",
+                    "partialFilterExpression": {"role": {"$type": "string"}},
+                },
+            ),
+        ]
+
+        for collection, keys, options in index_definitions:
+            await collection.create_index(keys, **options)
         logger.info("database indexes prepared successfully")
-    except PyMongoError as exc:
+    except PyMongoError:
         logger.exception("database index preparation failed")
-        raise RuntimeError(f"Failed to prepare MongoDB indexes: {exc}") from exc
+        raise RuntimeError("Failed to prepare MongoDB indexes") from None
 
 
 async def seed_default_admin() -> None:
@@ -120,9 +149,9 @@ async def seed_default_admin() -> None:
             }
         )
         logger.info("default admin seeded successfully")
-    except PyMongoError as exc:
+    except PyMongoError:
         logger.exception("default admin seeding failed")
-        raise RuntimeError(f"Failed to seed default admin: {exc}") from exc
+        raise RuntimeError("Failed to seed default admin") from None
 
 
 async def get_db_health() -> dict[str, object]:
