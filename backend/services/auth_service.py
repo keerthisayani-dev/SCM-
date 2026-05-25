@@ -4,10 +4,12 @@ from uuid import uuid4
 
 from fastapi import HTTPException
 
+from backend.config import get_settings
 from backend.database.mongo import users_collection
 from backend.models.user_model import RoleEnum
 from backend.utils.auth import hash_password, verify_password
 
+settings = get_settings()
 logger = logging.getLogger(__name__)
 
 
@@ -46,10 +48,46 @@ async def ensure_unique_identity(email: str, username: str, phone_number: str) -
     raise HTTPException(status_code=409, detail="Username is already taken")
 
 
+def resolve_signup_role(email: str, username: str, phone_number: str) -> RoleEnum:
+    normalized_email = email.strip().lower()
+    normalized_username = username.strip()
+    reserved_identity = {
+        "email": settings.admin_email.strip().lower(),
+        "username": settings.admin_username.strip(),
+        "phone_number": settings.admin_phone_number.strip(),
+    }
+    provided_identity = {
+        "email": normalized_email,
+        "username": normalized_username,
+        "phone_number": phone_number.strip(),
+    }
+
+    has_reserved_match = any(provided_identity[key] == reserved_identity[key] for key in reserved_identity)
+    is_full_reserved_match = all(provided_identity[key] == reserved_identity[key] for key in reserved_identity)
+
+    if has_reserved_match and not is_full_reserved_match:
+        logger.warning(
+            "reserved super admin identity mismatch during signup",
+            extra={"email": normalized_email, "username": normalized_username},
+        )
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Super admin signup requires the configured email, username, and phone number to match together."
+            ),
+        )
+
+    if is_full_reserved_match:
+        logger.info("super admin identity matched during signup", extra={"email": normalized_email})
+        return RoleEnum.SUPER_ADMIN
+
+    return RoleEnum.USER
+
+
 def build_user_document(username: str, email: str, phone_number: str, password: str, role: RoleEnum) -> dict:
     now = datetime.now(timezone.utc)
     document = {
-        "uid": uuid4().hex,
+        "uid": str(uuid4()),
         "username": username,
         "email": email,
         "phone_number": phone_number,
