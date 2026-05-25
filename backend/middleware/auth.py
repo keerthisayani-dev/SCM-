@@ -1,15 +1,19 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from pymongo.errors import PyMongoError
 
+from backend.config import get_settings
 from backend.database.mongo import users_collection
 from backend.utils.auth import ACCESS_TOKEN_ALGORITHM, ACCESS_TOKEN_SECRET
 
-bearer_scheme = HTTPBearer(
+settings = get_settings()
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl=settings.oauth_token_url,
+    scheme_name="OAuth2PasswordBearer",
     auto_error=False,
-    bearerFormat="JWT",
-    description="Use the access token returned by /api/auth/login or /api/auth/signup.",
+    description="Use your email in the Swagger 'username' field and your account password to authorize.",
 )
 
 
@@ -22,16 +26,16 @@ def _credentials_exception(detail: str) -> HTTPException:
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    token: str | None = Depends(oauth2_scheme),
 ) -> dict:
-    if credentials is None:
+    if token is None:
         raise _credentials_exception(
-            "Missing bearer token. Login first, then use Authorize in Swagger with the access token.",
+            "Missing bearer token. Login first, then use Authorize in Swagger with your email and password.",
         )
 
     try:
         payload = jwt.decode(
-            credentials.credentials,
+            token,
             ACCESS_TOKEN_SECRET,
             algorithms=[ACCESS_TOKEN_ALGORITHM],
         )
