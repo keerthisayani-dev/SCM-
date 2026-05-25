@@ -85,6 +85,15 @@ async def prepare_database() -> None:
             ),
             (
                 devices_collection,
+                [("uid", ASCENDING)],
+                {
+                    "name": "device_uid_unique_if_string",
+                    "unique": True,
+                    "partialFilterExpression": {"uid": {"$type": "string"}},
+                },
+            ),
+            (
+                devices_collection,
                 [("device_id", ASCENDING)],
                 {
                     "name": "device_id_unique_if_string",
@@ -94,19 +103,20 @@ async def prepare_database() -> None:
             ),
             (
                 shipments_collection,
+                [("uid", ASCENDING)],
+                {
+                    "name": "shipment_uid_unique_if_string",
+                    "unique": True,
+                    "partialFilterExpression": {"uid": {"$type": "string"}},
+                },
+            ),
+            (
+                shipments_collection,
                 [("tracking_id", ASCENDING)],
                 {
                     "name": "tracking_id_unique_if_string",
                     "unique": True,
                     "partialFilterExpression": {"tracking_id": {"$type": "string"}},
-                },
-            ),
-            (
-                shipments_collection,
-                [("owner_id", ASCENDING)],
-                {
-                    "name": "shipment_owner_lookup",
-                    "partialFilterExpression": {"owner_id": {"$type": "string"}},
                 },
             ),
             (
@@ -129,26 +139,57 @@ async def prepare_database() -> None:
 
 async def seed_default_admin() -> None:
     try:
-        existing_admin = await users_collection.find_one({"role": {"$in": [RoleEnum.ADMIN.value, RoleEnum.SUPER_ADMIN.value]}})
-        if existing_admin is not None:
-            logger.info("default admin seed skipped because admin already exists")
+        configured_super_admin = await users_collection.find_one(
+            {
+                "email": settings.admin_email,
+                "username": settings.admin_username,
+                "phone_number": settings.admin_phone_number,
+            }
+        )
+        if configured_super_admin is not None:
+            if configured_super_admin.get("role") != RoleEnum.SUPER_ADMIN.value:
+                await users_collection.update_one(
+                    {"_id": configured_super_admin["_id"]},
+                    {
+                        "$set": {
+                            "role": RoleEnum.SUPER_ADMIN.value,
+                            "updated_at": datetime.now(timezone.utc),
+                        }
+                    },
+                )
+                logger.info("configured super admin role upgraded successfully")
+            else:
+                logger.info("configured super admin already exists")
+            return
+
+        conflicting_identity = await users_collection.find_one(
+            {
+                "$or": [
+                    {"email": settings.admin_email},
+                    {"username": settings.admin_username},
+                    {"phone_number": settings.admin_phone_number},
+                ]
+            }
+        )
+        if conflicting_identity is not None:
+            logger.warning("default super admin seed skipped because reserved identity is partially in use")
             return
 
         now = datetime.now(timezone.utc)
         await users_collection.insert_one(
             {
-                "uid": "default-admin",
+                "uid": settings.default_admin_uid,
                 "username": settings.admin_username,
                 "email": settings.admin_email,
                 "phone_number": settings.admin_phone_number,
-                "role": RoleEnum.ADMIN.value,
+                "role": RoleEnum.SUPER_ADMIN.value,
                 "hashed_password": hash_password(settings.admin_password),
                 "created_at": now,
                 "updated_at": now,
                 "is_active": True,
             }
         )
-        logger.info("default admin seeded successfully")
+        logger.info("default super admin seeded successfully")
     except PyMongoError:
         logger.exception("default admin seeding failed")
         raise RuntimeError("Failed to seed default admin") from None
