@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMXPertLite Signup</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <main class="page-shell">
+        <section class="hero-panel">
+            <p class="eyebrow">SCMXPertLite</p>
+            <h1>Create your account.</h1>
+            <p class="hero-copy">
+                This page is connected only to your backend signup API. Fill in the fields and submit to create your account.
+            </p>
+            <div class="hero-notes">
+                <article class="note-card">
+                    <span class="note-label">Password rule</span>
+                    <p>At least 8 characters with uppercase, lowercase, and one special character.</p>
+                </article>
+                <article class="note-card">
+                    <span class="note-label">Phone rule</span>
+                    <p>Use exactly 10 digits with no spaces or country code.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="form-panel">
+            <div class="form-header">
+                <p class="form-kicker">Signup</p>
+                <h2>Open your dashboard</h2>
+                <p>The form posts to `/api/auth/signup` and keeps the success flow simple.</p>
+            </div>
+
+            <form id="signup-form" class="signup-form" novalidate>
+                <label class="field">
+                    <span>Username</span>
+                    <input name="username" type="text" placeholder="Enter name" required>
+                </label>
+                <label class="field">
+                    <span>Email</span>
+                    <input name="email" type="email" placeholder="name@example.com" required>
+                </label>
+                <label class="field">
+                    <span>Phone number</span>
+                    <input name="phone_number" type="tel" inputmode="numeric" maxlength="10" placeholder="Enter phone number" required>
+                </label>
+                <label class="field">
+                    <span>Password</span>
+                    <div class="password-field">
+                        <input name="password" type="password" placeholder="Create a strong password" required>
+                        <button class="toggle-password" type="button" data-target="password">Show</button>
+                    </div>
+                </label>
+                <label class="field">
+                    <span>Confirm password</span>
+                    <div class="password-field">
+                        <input name="confirm_password" type="password" placeholder="Repeat your password" required>
+                        <button class="toggle-password" type="button" data-target="confirm_password">Show</button>
+                    </div>
+                </label>
+                <button id="submit-button" class="submit-button" type="submit">Create account</button>
+                <p class="form-footnote">If account already exists ? <a href="/login">Login Account</a></p>
+            </form>
+
+            <div id="status-message" class="status-message" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <script src="/static/javascript/auth-storage.js?v=2"></script>
+    <script src="/static/javascript/app.js?v=2"></script>
+</body>
+</html>

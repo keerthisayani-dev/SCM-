@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMXPertLite Dashboard</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <main class="dashboard-shell">
+        <section class="dashboard-hero">
+            <div>
+                <p class="eyebrow">SCMXPertLite</p>
+                <h1 id="dashboard-title">Welcome to your dashboard.</h1>
+            </div>
+            <button id="logout-button" class="dashboard-logout" type="button">Logout</button>
+        </section>
+
+        <section class="dashboard-grid">
+            <article class="dashboard-card dashboard-card-emphasis">
+                <p class="form-kicker">Session</p>
+                <h2>Your login snapshot</h2>
+                <div class="dashboard-details">
+                    <div>
+                        <span class="result-label">User ID</span>
+                        <code id="dashboard-user-id"></code>
+                    </div>
+                    <div>
+                        <span class="result-label">Username</span>
+                        <code id="dashboard-username"></code>
+                    </div>
+                    <div>
+                        <span class="result-label">Email</span>
+                        <code id="dashboard-email"></code>
+                    </div>
+                    <div>
+                        <span class="result-label">Role</span>
+                        <code id="dashboard-role"></code>
+                    </div>
+                </div>
+            </article>
+
+            <article class="dashboard-card">
+                <p class="form-kicker">Devices</p>
+                <h3>12 active devices</h3>
+                <p>Dummy overview for your connected SCM assets and last sync health.</p>
+            </article>
+
+            <article class="dashboard-card">
+                <p class="form-kicker">Shipments</p>
+                <h3>4 delayed shipments</h3>
+                <p>Placeholder KPI card for shipment tracking, SLA alerts, and ETA exceptions.</p>
+            </article>
+
+            <article class="dashboard-card">
+                <p class="form-kicker">Activity</p>
+                <h3>27 tasks in queue</h3>
+                <p>Use this space later for approvals, operator actions, or warehouse activity feeds.</p>
+            </article>
+        </section>
+    </main>
+
+    <script src="/static/javascript/auth-storage.js?v=2"></script>
+    <script src="/static/javascript/dashboard.js?v=2"></script>
+</body>
+</html>

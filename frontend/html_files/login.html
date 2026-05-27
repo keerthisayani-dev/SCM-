@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMXPertLite Login</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <main class="page-shell">
+        <section class="hero-panel">
+            <p class="eyebrow">SCMXPertLite</p>
+            <h1>Welcome back.</h1>
+            <p class="hero-copy">
+                Log in with the account you already created. This page is connected to your backend login API only.
+            </p>
+            <div class="hero-notes">
+                <article class="note-card">
+                    <span class="note-label">Secure access</span>
+                    <p>Use your registered email and password to sign in to your account.</p>
+                </article>
+                <article class="note-card">
+                    <span class="note-label">New here?</span>
+                    <p>Go back to signup if you still need to create an account first.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="form-panel">
+            <div class="form-header">
+                <p class="form-kicker">Login</p>
+                <h2>Access your account</h2>
+                <p>Enter your email and password to receive the login response from your backend.</p>
+            </div>
+
+            <form id="login-form" class="signup-form" novalidate>
+                <label class="field">
+                    <span>Email</span>
+                    <input name="email" type="email" placeholder="name@example.com" required>
+                </label>
+                <label class="field">
+                    <span>Password</span>
+                    <div class="password-field">
+                        <input name="password" type="password" placeholder="Enter password" required>
+                        <button class="toggle-password" type="button" data-target="password">Show</button>
+                    </div>
+                </label>
+                <button id="login-button" class="submit-button" type="submit">Login Account</button>
+                <p class="form-footnote">Need a new account ? <a href="/">Create Account</a></p>
+            </form>
+
+            <div id="status-message" class="status-message" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <script src="/static/javascript/auth-storage.js?v=2"></script>
+    <script src="/static/javascript/login.js?v=2"></script>
+</body>
+</html>
