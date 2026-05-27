@@ -4,14 +4,12 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 from jose import jwt
 
-from backend.config import get_settings
+from backend.config import BCRYPT_ROUNDS, JWT_ALGORITHM, JWT_EXPIRE_MINUTES, JWT_SECRET_KEY
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
-ACCESS_TOKEN_SECRET = settings.jwt_secret_key
-ACCESS_TOKEN_ALGORITHM = settings.jwt_algorithm
-ACCESS_TOKEN_TTL_MINUTES = settings.jwt_expire_minutes
-BCRYPT_ROUNDS = settings.bcrypt_rounds
+ACCESS_TOKEN_SECRET = JWT_SECRET_KEY
+ACCESS_TOKEN_ALGORITHM = JWT_ALGORITHM
+ACCESS_TOKEN_TTL_MINUTES = JWT_EXPIRE_MINUTES
 
 
 def hash_password(password: str) -> str:
