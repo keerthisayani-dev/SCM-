@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 
 PASSWORD_RULE_MESSAGE = (
@@ -20,12 +20,11 @@ def validate_password_rule(password: str) -> str:
     return password
 
 
-class UserSignupRequest(BaseModel):
+class UserBase(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     username: str = Field(..., min_length=1)
     email: EmailStr
-    phone_number: str = Field(..., min_length=10, max_length=10)
-    password: str
-    confirm_password: str
 
     @field_validator("username")
     @classmethod
@@ -33,6 +32,12 @@ class UserSignupRequest(BaseModel):
         if not value.strip():
             raise ValueError("Username must contain at least one non-space character.")
         return value
+
+
+class UserSignupRequest(UserBase):
+    phone_number: str = Field(..., min_length=10, max_length=10)
+    password: str
+    confirm_password: str
 
     @field_validator("password")
     @classmethod
@@ -66,10 +71,8 @@ class RoleEnum(str, Enum):
     SUPER_ADMIN = "super_admin"
 
 
-class UserProfileResponse(BaseModel):
+class UserProfileResponse(UserBase):
     id: str
-    username: str
-    email: EmailStr
     role: RoleEnum
 
 
@@ -109,3 +112,15 @@ class AdminUserSummary(BaseModel):
 
 class UserRoleUpdateRequest(BaseModel):
     role: RoleEnum
+
+
+class UserCreate(UserSignupRequest):
+    pass
+
+
+class UserLogin(UserLoginRequest):
+    pass
+
+
+class UserOut(UserProfileResponse):
+    pass
