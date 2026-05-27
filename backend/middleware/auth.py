@@ -3,14 +3,12 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from pymongo.errors import PyMongoError
 
-from backend.config import get_settings
+from backend.config import OAUTH_TOKEN_URL
 from backend.database.mongo import users_collection
 from backend.utils.auth import ACCESS_TOKEN_ALGORITHM, ACCESS_TOKEN_SECRET
 
-settings = get_settings()
-
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl=settings.oauth_token_url,
+    tokenUrl=OAUTH_TOKEN_URL,
     scheme_name="OAuth2PasswordBearer",
     auto_error=False,
     description="Use your email in the Swagger 'username' field and your account password to authorize.",

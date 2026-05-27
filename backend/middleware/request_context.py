@@ -10,7 +10,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 request_id_context: ContextVar[str] = ContextVar("request_id", default="-")
 request_path_context: ContextVar[str] = ContextVar("request_path", default="-")
 request_method_context: ContextVar[str] = ContextVar("request_method", default="-")
-logger = logging.getLogger("scmxpertlite.request")
+logger = logging.getLogger(__name__)
 
 
 def get_request_context() -> dict[str, str]:
