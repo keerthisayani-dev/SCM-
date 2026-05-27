@@ -26,3 +26,8 @@ SCMXPertLite is a FastAPI-based backend with MongoDB for authentication, role-ba
 - `GET /api/admin/users`
 - `PATCH /api/admin/users/{user_id}/role`
 - `DELETE /api/admin/users/{user_id}`
+- `POST /api/shipments`
+- `GET /api/shipments`
+- `GET /api/shipments/{tracking_id}`
+- `PATCH /api/shipments/{tracking_id}`
+- `DELETE /api/shipments/{tracking_id}`
