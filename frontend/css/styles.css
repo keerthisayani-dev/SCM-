@@ -1,0 +1,467 @@
+:root {
+    --bg: #f6efe5;
+    --surface: rgba(255, 251, 246, 0.84);
+    --surface-strong: #fffdf9;
+    --text: #182345;
+    --muted: #5f6980;
+    --accent: #d35a0b;
+    --accent-deep: #a84300;
+    --accent-soft: #f7e7dc;
+    --border: rgba(24, 35, 69, 0.12);
+    --danger: #ad2f26;
+    --success: #146c43;
+    --shadow: 0 28px 60px rgba(28, 34, 54, 0.14);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Georgia, "Times New Roman", serif;
+    color: var(--text);
+    background:
+        radial-gradient(circle at top left, rgba(211, 90, 11, 0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(24, 35, 69, 0.12), transparent 26%),
+        linear-gradient(135deg, #fdf8f1 0%, #f2eadf 100%);
+}
+
+.page-shell {
+    width: min(1120px, calc(100% - 32px));
+    margin: 0 auto;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.02fr 0.98fr;
+    gap: 28px;
+    align-items: center;
+    padding: 30px 0;
+}
+
+.page-shell-wide {
+    width: min(1380px, calc(100% - 32px));
+    align-items: start;
+}
+
+.hero-panel,
+.form-panel {
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    background: var(--surface);
+    backdrop-filter: blur(14px);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+}
+
+.eyebrow,
+.form-kicker,
+.note-label,
+.result-label {
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+}
+
+.hero-panel {
+    padding: 52px 44px;
+}
+
+.hero-panel::after {
+    content: "";
+    position: absolute;
+    inset: auto -30px -30px auto;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(211, 90, 11, 0.14), rgba(24, 35, 69, 0.08));
+}
+
+.hero-panel h1,
+.form-panel h2 {
+    margin: 0;
+    line-height: 0.92;
+}
+
+.hero-panel h1 {
+    font-size: clamp(3.2rem, 7vw, 5.8rem);
+    max-width: 7ch;
+}
+
+.hero-copy {
+    max-width: 52ch;
+    margin: 24px 0 0;
+    color: var(--muted);
+    line-height: 1.6;
+    font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+    font-size: 1.02rem;
+}
+
+.hero-notes,
+.signup-form,
+.result-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.hero-notes {
+    margin-top: 34px;
+}
+
+.note-card {
+    padding: 18px 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(211, 90, 11, 0.12);
+    background: rgba(255, 255, 255, 0.68);
+    position: relative;
+    z-index: 1;
+}
+
+.note-card p,
+.form-header p,
+.status-message,
+.success-panel p {
+    margin: 10px 0 0;
+    color: var(--muted);
+    line-height: 1.6;
+    font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+}
+
+.form-panel {
+    padding: 38px 32px;
+}
+
+.form-panel h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.form-header p {
+    margin-top: 12px;
+}
+
+.signup-form {
+    margin-top: 28px;
+}
+
+.field {
+    display: grid;
+    gap: 8px;
+}
+
+.field span {
+    font-size: 0.92rem;
+    font-weight: 700;
+    font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+}
+
+.field input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface-strong);
+    color: var(--text);
+    padding: 15px 16px;
+    outline: none;
+    font: 16px "Trebuchet MS", "Avenir Next", sans-serif;
+    transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.field input:focus {
+    border-color: rgba(211, 90, 11, 0.55);
+    box-shadow: 0 0 0 5px rgba(211, 90, 11, 0.12);
+    transform: translateY(-1px);
+}
+
+.password-field {
+    position: relative;
+}
+
+.password-field input {
+    padding-right: 88px;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    min-width: 58px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--muted);
+    box-shadow: none;
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.toggle-password:hover {
+    transform: translateY(-50%);
+}
+
+button {
+    border: 0;
+    border-radius: 999px;
+    padding: 16px 20px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #fff8f3;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+    font: 16px "Trebuchet MS", "Avenir Next", sans-serif;
+    box-shadow: 0 18px 30px rgba(211, 90, 11, 0.24);
+}
+
+.submit-button:hover {
+    transform: translateY(-2px);
+}
+
+.submit-button:disabled {
+    cursor: wait;
+    opacity: 0.78;
+}
+
+.form-footnote {
+    margin: 2px 0 0;
+    color: var(--muted);
+    text-align: center;
+    font: 15px "Trebuchet MS", "Avenir Next", sans-serif;
+}
+
+.form-footnote a {
+    color: var(--accent);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.form-footnote a:hover {
+    text-decoration: underline;
+}
+
+.status-message {
+    min-height: 24px;
+    margin-top: 18px;
+    font-size: 0.95rem;
+}
+
+.status-message.error {
+    color: var(--danger);
+}
+
+.status-message.success {
+    color: var(--success);
+}
+
+.success-panel {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 20px;
+    background: var(--accent-soft);
+    border: 1px solid rgba(211, 90, 11, 0.16);
+}
+
+.success-panel h3 {
+    margin: 0;
+}
+
+.login-collections-panel {
+    display: grid;
+    gap: 20px;
+}
+
+.actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    margin-top: 24px;
+}
+
+.text-link {
+    color: var(--accent);
+    font: 16px "Trebuchet MS", "Avenir Next", sans-serif;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
+.browser-session-panel {
+    margin-top: 0;
+}
+
+.table-shell {
+    margin-top: 18px;
+    overflow-x: auto;
+    border-radius: 18px;
+    border: 1px solid rgba(211, 90, 11, 0.16);
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 960px;
+    font: 14px "Trebuchet MS", "Avenir Next", sans-serif;
+}
+
+.details-table th,
+.details-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(24, 35, 69, 0.08);
+    vertical-align: top;
+}
+
+.details-table th {
+    background: rgba(211, 90, 11, 0.1);
+    color: var(--text);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.details-table tbody tr:nth-child(even) {
+    background: rgba(247, 231, 220, 0.42);
+}
+
+.result-grid code {
+    display: block;
+    margin-top: 6px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    word-break: break-word;
+    font: 14px "Trebuchet MS", "Avenir Next", sans-serif;
+}
+
+.token-block code {
+    max-height: 120px;
+    overflow: auto;
+}
+
+@media (max-width: 860px) {
+    .page-shell {
+        grid-template-columns: 1fr;
+        padding: 20px 0 28px;
+    }
+
+    .hero-panel,
+    .form-panel {
+        padding: 28px 22px;
+        border-radius: 24px;
+    }
+
+    .hero-panel h1 {
+        max-width: none;
+    }
+}
+
+.dashboard-shell {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 36px 0 44px;
+}
+
+.dashboard-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 34px;
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    background: var(--surface);
+    backdrop-filter: blur(14px);
+    box-shadow: var(--shadow);
+}
+
+.dashboard-hero h1 {
+    margin: 0;
+    font-size: clamp(2.8rem, 6vw, 4.8rem);
+    line-height: 0.95;
+}
+
+.dashboard-logout {
+    white-space: nowrap;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    margin-top: 24px;
+}
+
+.dashboard-card {
+    padding: 26px;
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    background: rgba(255, 251, 246, 0.84);
+    box-shadow: var(--shadow);
+}
+
+.dashboard-card h2,
+.dashboard-card h3 {
+    margin: 0;
+}
+
+.dashboard-card p:last-child {
+    margin: 12px 0 0;
+    color: var(--muted);
+    line-height: 1.6;
+    font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+}
+
+.dashboard-card-emphasis {
+    grid-column: span 3;
+}
+
+.dashboard-details {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.dashboard-details code {
+    display: block;
+    margin-top: 6px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    word-break: break-word;
+    font: 14px "Trebuchet MS", "Avenir Next", sans-serif;
+}
+
+@media (max-width: 860px) {
+    .dashboard-shell {
+        padding: 20px 0 28px;
+    }
+
+    .dashboard-hero {
+        flex-direction: column;
+        padding: 26px 22px;
+        border-radius: 24px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-card-emphasis {
+        grid-column: auto;
+    }
+
+    .dashboard-details {
+        grid-template-columns: 1fr;
+    }
+}
