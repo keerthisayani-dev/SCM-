@@ -6,18 +6,17 @@ from fastapi import APIRouter, HTTPException, status
 from pymongo import ReturnDocument
 from pymongo.errors import DuplicateKeyError, PyMongoError
 
-from backend.config import get_settings
+from backend.config import SHIPMENT_TRACKING_PREFIX
 from backend.database.mongo import shipments_collection
 from backend.models.shipment_model import ShipmentCreate, ShipmentInDB, ShipmentOut, ShipmentStatus, ShipmentUpdate
 
-settings = get_settings()
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
 def generate_tracking_id() -> str:
-    return f"{settings.shipment_tracking_prefix}{uuid4().hex[:8].upper()}"
+    return f"{SHIPMENT_TRACKING_PREFIX}{uuid4().hex[:8].upper()}"
 
 
 def _active_shipments_filter() -> dict[str, dict[str, bool]]:
@@ -28,31 +27,66 @@ def _active_shipment_filter(tracking_id: str) -> dict[str, object]:
     return {"tracking_id": tracking_id, "is_deleted": {"$ne": True}}
 
 
+def _shipment_response(shipment: dict) -> ShipmentOut:
+    payload = {
+        "tracking_id": shipment["tracking_id"],
+        "shipment_number": shipment.get("shipment_number"),
+        "container_number": shipment.get("container_number"),
+        "route_details": shipment.get("route_details"),
+        "goods_type": shipment.get("goods_type"),
+        "device_id": shipment.get("device_id"),
+        "expected_delivery_date": shipment.get("expected_delivery_date"),
+        "po_number": shipment.get("po_number"),
+        "delivery_number": shipment.get("delivery_number"),
+        "ndc_number": shipment.get("ndc_number"),
+        "batch_id": shipment.get("batch_id"),
+        "serial_number_of_goods": shipment.get("serial_number_of_goods"),
+        "shipment_description": shipment.get("shipment_description"),
+        "sender": shipment.get("sender"),
+        "receiver": shipment.get("receiver"),
+        "origin": shipment.get("origin"),
+        "destination": shipment.get("destination"),
+        "weight_kg": shipment.get("weight_kg"),
+        "expected_delivery": shipment.get("expected_delivery"),
+        "status": shipment["status"],
+        "created_at": shipment["created_at"],
+        "updated_at": shipment["updated_at"],
+    }
+    return ShipmentOut(**payload)
+
+
 @router.post("/shipments", response_model=ShipmentOut, status_code=status.HTTP_201_CREATED, summary="Create shipment")
 async def create_shipment(payload: ShipmentCreate) -> ShipmentOut:
     for attempt in range(3):
         now = datetime.now(timezone.utc)
-        shipment = ShipmentInDB(
-            uid=str(uuid4()),
-            tracking_id=generate_tracking_id(),
-            shipment_number=payload.shipment_number,
-            container_number=payload.container_number,
-            route_details=payload.route_details,
-            goods_type=payload.goods_type,
-            device_id=payload.device_id,
-            expected_delivery_date=payload.expected_delivery_date,
-            po_number=payload.po_number,
-            delivery_number=payload.delivery_number,
-            ndc_number=payload.ndc_number,
-            batch_id=payload.batch_id,
-            serial_number_of_goods=payload.serial_number_of_goods,
-            shipment_description=payload.shipment_description,
-            status=ShipmentStatus.PENDING,
-            created_at=now,
-            updated_at=now,
-            is_deleted=False,
-            deleted_at=None,
-        )
+        shipment_data = {
+            "uid": str(uuid4()),
+            "tracking_id": generate_tracking_id(),
+            "shipment_number": payload.shipment_number,
+            "container_number": payload.container_number,
+            "route_details": payload.route_details,
+            "goods_type": payload.goods_type,
+            "device_id": payload.device_id,
+            "expected_delivery_date": payload.expected_delivery_date,
+            "po_number": payload.po_number,
+            "delivery_number": payload.delivery_number,
+            "ndc_number": payload.ndc_number,
+            "batch_id": payload.batch_id,
+            "serial_number_of_goods": payload.serial_number_of_goods,
+            "shipment_description": payload.shipment_description,
+            "sender": payload.sender,
+            "receiver": payload.receiver,
+            "origin": payload.origin,
+            "destination": payload.destination,
+            "weight_kg": payload.weight_kg,
+            "expected_delivery": payload.expected_delivery,
+            "status": ShipmentStatus.PENDING,
+            "created_at": now,
+            "updated_at": now,
+            "is_deleted": False,
+            "deleted_at": None,
+        }
+        shipment = ShipmentInDB(**shipment_data)
 
         try:
             logger.info(
@@ -64,7 +98,7 @@ async def create_shipment(payload: ShipmentCreate) -> ShipmentOut:
                 "shipment created successfully",
                 extra={"tracking_id": shipment.tracking_id},
             )
-            return ShipmentOut(**shipment.model_dump())
+            return _shipment_response(shipment.model_dump())
         except DuplicateKeyError:
             logger.warning(
                 "shipment tracking id collision encountered",
@@ -83,7 +117,7 @@ async def list_shipments() -> list[ShipmentOut]:
     try:
         logger.info("shipment list requested")
         shipments = await shipments_collection.find(_active_shipments_filter(), {"_id": 0}).to_list(length=500)
-        return [ShipmentOut(**shipment) for shipment in shipments]
+        return [_shipment_response(shipment) for shipment in shipments]
     except PyMongoError as exc:
         logger.exception("shipment listing failed due to database error")
         raise HTTPException(status_code=500, detail="Database error occurred while listing shipments") from exc
@@ -102,7 +136,7 @@ async def get_shipment(tracking_id: str) -> ShipmentOut:
         logger.warning("shipment lookup failed because shipment was not found", extra={"tracking_id": tracking_id})
         raise HTTPException(status_code=404, detail="Shipment not found")
 
-    return ShipmentOut(**shipment)
+    return _shipment_response(shipment)
 
 
 @router.patch("/shipments/{tracking_id}", response_model=ShipmentOut, summary="Update shipment")
@@ -134,7 +168,7 @@ async def update_shipment(
         logger.warning("shipment update failed because shipment was not found", extra={"tracking_id": tracking_id})
         raise HTTPException(status_code=404, detail="Shipment not found")
 
-    return ShipmentOut(**shipment)
+    return _shipment_response(shipment)
 
 
 @router.delete("/shipments/{tracking_id}", summary="Delete shipment")

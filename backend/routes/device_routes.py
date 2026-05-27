@@ -18,11 +18,13 @@ router = APIRouter()
 def _device_response(document: dict) -> DeviceOut:
     return DeviceOut(
         device_id=document["device_id"],
-        battery_level=document["battery_level"],
-        first_sensor_temperature=document["first_sensor_temperature"],
-        route_from=document["route_from"],
-        route_to=document["route_to"],
-        timestamp=document["timestamp"],
+        battery_level=document.get("battery_level"),
+        first_sensor_temperature=document.get("first_sensor_temperature"),
+        route_from=document.get("route_from"),
+        route_to=document.get("route_to"),
+        timestamp=document.get("timestamp"),
+        name=document.get("name"),
+        status=document.get("status"),
         created_at=document.get("created_at"),
         updated_at=document.get("updated_at"),
     )
