@@ -4,12 +4,10 @@ from uuid import uuid4
 
 from fastapi import HTTPException
 
-from backend.config import get_settings
-from backend.database.mongo import users_collection
+from backend.database.mongo import auth_events_collection, login_details_collection, users_collection
 from backend.models.user_model import RoleEnum
 from backend.utils.auth import hash_password, verify_password
 
-settings = get_settings()
 logger = logging.getLogger(__name__)
 
 
@@ -30,6 +28,66 @@ async def authenticate_user(email: str, password: str) -> dict:
     return user
 
 
+async def record_successful_login(user_uid: str, client_source: str) -> None:
+    now = datetime.now(timezone.utc)
+    await users_collection.update_one(
+        {"uid": user_uid},
+        {
+            "$set": {
+                "last_login_at": now,
+                "last_login_via": client_source,
+                "updated_at": now,
+            },
+            "$inc": {"login_count": 1},
+        },
+    )
+    logger.info("login activity recorded", extra={"user_id": user_uid, "client_source": client_source})
+
+
+async def record_auth_event(
+    *,
+    event_type: str,
+    email: str,
+    client_source: str,
+    user_uid: str | None = None,
+) -> None:
+    now = datetime.now(timezone.utc)
+    await auth_events_collection.insert_one(
+        {
+            "uid": str(uuid4()),
+            "event_type": event_type,
+            "user_uid": user_uid,
+            "email": email,
+            "client_source": client_source,
+            "created_at": now,
+        }
+    )
+    logger.info("auth event recorded", extra={"event_type": event_type, "user_id": user_uid, "client_source": client_source})
+
+
+async def record_login_detail(
+    *,
+    user_uid: str,
+    username: str,
+    email: str,
+    role: str,
+    client_source: str,
+) -> None:
+    now = datetime.now(timezone.utc)
+    await login_details_collection.insert_one(
+        {
+            "uid": str(uuid4()),
+            "user_uid": user_uid,
+            "username": username,
+            "email": email,
+            "role": role,
+            "client_source": client_source,
+            "logged_in_at": now,
+        }
+    )
+    logger.info("login detail recorded", extra={"user_id": user_uid, "client_source": client_source})
+
+
 async def ensure_unique_identity(email: str, username: str, phone_number: str) -> None:
     logger.info("checking unique identity", extra={"email": email, "username": username})
     duplicate = await users_collection.find_one(
@@ -46,42 +104,6 @@ async def ensure_unique_identity(email: str, username: str, phone_number: str) -
         raise HTTPException(status_code=409, detail="Phone number is already registered")
     logger.warning("duplicate username detected", extra={"username": username})
     raise HTTPException(status_code=409, detail="Username is already taken")
-
-
-def resolve_signup_role(email: str, username: str, phone_number: str) -> RoleEnum:
-    normalized_email = email.strip().lower()
-    normalized_username = username.strip()
-    reserved_identity = {
-        "email": settings.admin_email.strip().lower(),
-        "username": settings.admin_username.strip(),
-        "phone_number": settings.admin_phone_number.strip(),
-    }
-    provided_identity = {
-        "email": normalized_email,
-        "username": normalized_username,
-        "phone_number": phone_number.strip(),
-    }
-
-    has_reserved_match = any(provided_identity[key] == reserved_identity[key] for key in reserved_identity)
-    is_full_reserved_match = all(provided_identity[key] == reserved_identity[key] for key in reserved_identity)
-
-    if has_reserved_match and not is_full_reserved_match:
-        logger.warning(
-            "reserved super admin identity mismatch during signup",
-            extra={"email": normalized_email, "username": normalized_username},
-        )
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Super admin signup requires the configured email, username, and phone number to match together."
-            ),
-        )
-
-    if is_full_reserved_match:
-        logger.info("super admin identity matched during signup", extra={"email": normalized_email})
-        return RoleEnum.SUPER_ADMIN
-
-    return RoleEnum.USER
 
 
 def build_user_document(username: str, email: str, phone_number: str, password: str, role: RoleEnum) -> dict:
